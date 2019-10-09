@@ -68,3 +68,24 @@ class Sprite {
     this.height = height;
   }
 }
+
+class City {
+  constructor(helmetSprite){
+    this.sprite = helmetSprite;
+    this.canvas = null; // City sprite will have its own canvas to be drawn on top of our original one
+    this.y = 0; // Putting cities 30 pixels on top of the tank
+    this.height = helmetSprite.height;
+  }
+
+  // init() function for cities' canvas
+  init(){
+    this.canvas = document.createElement("canvas");
+    this.canvas.width = screen.width;
+    this.canvas.height = this.height;
+    this.ctx = this.canvas.getContext("2d");
+
+    // Drawing 4 city sprites
+    let helmetSprite = this.sprite;
+      this.ctx.drawImage(helmetSprite.img, helmetSprite.x, helmetSprite.y, helmetSprite.width, helmetSprite.height, 68 + 111 * i, 0, helmetSprite.width, helmetSprite.height);
+  }
+
