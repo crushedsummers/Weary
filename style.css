@@ -6,7 +6,7 @@
 	background-color: black;
 }
 
-#canvas{
+canvas{
 	margin: auto;
 	border: 1px solid white;
 }
@@ -23,7 +23,7 @@ button{
 }
 
 h1{
-	font-family: Helvetica;
+	font-family: 'Press Start 2P';
 	font-size: 50px;
 	margin-bottom: 10px;
 	margin-top: 0;

@@ -1,195 +1,200 @@
 $(document).ready(function() {
-	var ctx = document.getElementById("canvas").getContext("2d");
-	var gameOver = false;
-	var score = 0;
-	var startScore = false;
-	var prevScore = 0
-	var aiChallenge = 0.1;
+/**************
+*  Variables  *
+***************
+	Here are the global variables we'll use in our game.
+	*/
 
-	//VARIABLES/CONSTS
-	const PI = Math.PI;
-	const HEIGHT = canvas.height;
-	const WIDTH = canvas.width;
-	const UP_KEY = 38, DOWN_KEY = 40;
+	// Variable for overall set up
+	var screen, gameOver = false, win = false, var score = 0;
+	var invaders_image, helmet_image, scarf_image, gun_image, heart_image, tree_image, text_image, think_image, dialouge_image, system_image; 
 
-	//USER INPUT
-	var keyPressed = null;
+	// Variables for frames to control screen's updates
+	var frames, levelFrame, motion;
 
-	//OBJECTS
-	var player = {
-		x: null,
-		y: null,
-		width: 20,
-		height: 100,
-		update: function() {
-			//key press
-			if(keyPressed == UP_KEY) {
-				if (this.y > 11){
-					this.y -= 10;
+	// Variables for the sprites
+	var alienSprite;
+
+	// Variables for storing the game objects
+	var aliens;
+
+	// Variable for game control
+	var alien_direction;
+
+	//Constants
+	const PI = Math.PI, const HEIGHT = canvas.height, const WIDTH = canvas.width;
+
+	/*
+		OBJECTS
+		var ai = {
+			x: null,
+			y: null,
+			width: 20,
+			height: 100,
+			update: function() {
+				//ai hit balls, ai follow ball
+				let target;
+				if(ball.speedy >2){
+					target = ball.y - ((this.height - ball.size))/4;
 				}
+				else if(ball.speedy<-2){
+					target = ball.y - (this.height + (ball.size))/4;
+				}
+				else if(ball.speedy >4){
+					target = ball.y - ((this.height - ball.size))/8;
+				}
+				else if(ball.speedy<-4){
+					target = ball.y - (this.height + (ball.size))/8;
+				}
+				else{
+					target = ball.y - ((this.height - ball.size))/2;
+				}
+				//this.y += (target - this.y) * 0.1;
+				this.y += (target - this.y) * aiChallenge;
+			},
+			draw: function() {
+				ctx.fillRect(this.x, this.y, this.width, this.height);
 			}
-			if(keyPressed == DOWN_KEY && (this.y < HEIGHT - this.height - 11)) this.y += 10;
-		},
-		draw: function() {
-			ctx.fillRect(this.x, this.y, this.width, this.height);
 		}
-	}
-	var ai = {
-		x: null,
-		y: null,
-		width: 20,
-		height: 100,
-		update: function() {
-			//ai hit balls, ai follow ball
-			let target;
-			if(ball.speedy >2){
-				target = ball.y - ((this.height - ball.size))/4;
-			}
-			else if(ball.speedy<-2){
-				target = ball.y - (this.height + (ball.size))/4;
-			}
-			else if(ball.speedy >4){
-				target = ball.y - ((this.height - ball.size))/8;
-			}
-			else if(ball.speedy<-4){
-				target = ball.y - (this.height + (ball.size))/8;
-			}
-			else{
-				target = ball.y - ((this.height - ball.size))/2;
-			}
-			//this.y += (target - this.y) * 0.1;
-			this.y += (target - this.y) * aiChallenge;
-		},
-		draw: function() {
-			ctx.fillRect(this.x, this.y, this.width, this.height);
-		}
-	}
-	var ball = {
-		x: null,
-		y: null,
-		size: 20,
-		speedx: null,
-		speedy: null,
-		speed: 5,
-		update: function() {
-			this.x += this.speedx;
-			this.y += this.speedy;
+	*/
 
-			//check collision
-			//top and bottom boundaries 
-			if(this.y >= (HEIGHT-ball.size) || this.y <= 0){
-				this.speedy *= -1;
-			}
-
-			//function for players collisions
-			//input a is always the ball
-			//input b is always the player
-			function checkCollision(a,b){
-				return((a.x < b.x + b.width) && (a.y < b.y + b.height) && (b.x < a.x + a.size) && (b.y < a.y + a.size));
-			}
-
-			//simplify checking procedure
-			let other;
-			//if it's going left
-			if(ball.speedx < 0){
-				//check player
-				other = player;
-			}
-			else {
-				other = ai;
-			}
-
-			//check for collision (boolean)
-			let collided = checkCollision(ball, other);
-
-			if (collided){
-				//check angle parameter (insert reflections and mechanics!)
-				let n = (this.y + this.size - other.y) / (other.height + this.size);
-				let phi = 0.25 * PI * (2*n-1);
-				this.speedx = this.speed * Math.cos(phi);
-				this.speedy = this.speed * Math.sin(phi);
-
-				if(other == ai) this.speedx *= -1;
-				if (other == player && startScore == true) {
-					score += 1;
-				}
-			}
-
-			if(this.x > WIDTH || this.x < -this.size){
-				gameOver = true;
-				$("button").fadeIn();
-				//check who wins
-				if (this.x > WIDTH){
-					$("h1").html("You Win!");
-				}
-				else {
-					$("h1").html("You Lose!");
-				}
-			}
-
-		},
-		draw: function() {
-			ctx.fillRect(this.x, this.y, this.size, this.size);
-		}
-	}
+/***************************
+*  Main Function - main()  *
+****************************
+	The main() function is the main entry point to run our game.
+	*/
 
 	function main(){
-		//make them exist, position them
-		init();
+	    // Repeatedly loop and update the game & draw the result on the screen
+	    let loop = function() {
+	      update();
+	      draw();
+	      if(!gameOver){
+	        window.requestAnimationFrame(loop, screen.canvas);
+	      } 
+	      else{
+	        //call gameover function
+	        GameOver(screen, win);
+	      }
+	    }
+	    window.requestAnimationFrame(loop, screen.canvas);
+	  }
 
-		var loop = function(){
-			update();
-			draw();
-			window.requestAnimationFrame(loop, canvas);
-		}
-
-		window.requestAnimationFrame(loop, canvas);
-	}
-
+/*************************************
+*  Initialization Function - init()  *
+**************************************
+	init() function helps us initialize and start off our game 
+	by preparing the sprites we need and put them in the right positions.
+	Once the sprite is loaded, we can the main() function to start the main loop!
+	*/
+	
 	function init(){
-		gameOver = false;
-		score = 0;
-		startScore = false;
-		prevScore = 0;
-		player.height = 100;
-		ai.height = 100;
-		ball.speed = 5;
+	    // Creating screen - only if it is not there yet
+	    //name of Screen object is screen
+	    //null = empty = none = acune
+	    if (screen == null){
+	      screen = new Screen(1280,540);
 
-		// Change title
-		$("h1").html("Pong");
+	    }
 
-		//player position
-		player.x = 20;
-		player.y = (HEIGHT-player.height)/2;
+	    gameOver = false;
+	    win = false;
 
-		//enemy position
-		ai.x = 660;
-		ai.y = (HEIGHT-ai.height)/2;
+	    // Calculating screen's update using variables for frames
+	    frames = 0;
+	    motion = 0;//for alien, either 0 or 1
+	    levelFrame = 60;//frames required before switching to next level AKA when aliens come forward
+	    alien_direction = 1;//1 = right, -1 = left
 
-		//ball position
-		ball.x = (WIDTH-ball.size)/2;
-		ball.y = (HEIGHT-ball.size)/2;
+	 	// Assigning image source
+	    invaders_image = new Image();
+	    invaders_image.src = "global/sprite-sheet.png";
 
-		//initialise speed of ball
-		ball.speedx=ball.speed;
-		//randomise initial direction
+	    $(invaders_image).on("load", function(){
+			alienSprite = [
+				// Parameters for Sprite => (image's src, top left corner x, y, width, height)
+				[new Sprite(this, 0,0,428,308), new Sprite(this, 0,310,427,620)], //first alien, cropping img file
+				[new Sprite(this,428,0,733,305), new Sprite(this, 427,316,733,620)] //second alien
+			]
+			
+		helmet_image = new Image();
+	    helmet_imagee.src = "global/helmet.png";
+	    helmet = {
+	    	x: 0,
+			y: 0,
+			width: WIDTH,
+			height: 100,
+	    }
 
-		//math.round(math.random()) = either 0 or 1
-		//any number in a if statement that aint 0 or negative, is true
-		//if (1), ball.speedx = -10
-		//if (0), ball speed != -10, aka = 10
-		if(Math.round(Math.random())) ball.speedx *= -1;
-		ball.speedy = 0;		
-	}
+	    //let citySprite = this.sprite;
+      	//this.ctx.drawImage(citySprite.img, citySprite.x, citySprite.y, citySprite.width, citySprite.height, 68 + 111 * i, 0, citySprite.width, citySprite.height);
+
+		scarf_image = new Image();
+	    scarf_imagee.src = "global/scarf.png";
+
+		gun_image = new Image();
+	    gun_imagee.src = "global/gun.png";
+
+		heart_image = new Image();
+	    heart_imagee.src = "global/heart.png";
+
+		tree_image = new Image();
+	    tree_imagee.src = "global/tree.png";
+
+		text_image = new Image();
+	    text_imagee.src = "global/dialogue-text.png";
+
+		think_image = new Image();
+	    think_imagee.src = "global/dialogue-think.png";	    
+
+		dialouge_image = new Image();
+	    dialouge_imagee.src = "global/dialogue-base.png";	  
+
+		system_image = new Image();
+	    system_imagee.src = "global/system.png";	 
+
+		/*
+			// Create alien objects
+			aliens = [];
+			let rows = [1, 0, 0];
+			for (let i = 0; i < rows.length; i++){
+				for(let z = 0; z<10;z++){
+					let alienType = rows[i];
+						aliens.push({
+						sprite: alienSprite[alienType],
+						x: 30+z * 30 + [0,4,0][alienType],
+						y: 30+i*30,
+						width: alienSprite[alienType][0].width,
+						height: alienSprite[alienType][0].height
+					})
+				}
+			}
+		*/
+	 	 // Calling the main function when the picture is ready after load
+	      main();
+	    });
+ 	}
+
+/*******************************
+*  Update Function - update()  *
+********************************
+	update() function helps you update the positions and check for events (collisions, bullet shots).
+	*/
 
 	function update(){
-		if(!gameOver) ball.update();
-		player.update();
-		ai.update();
+		//if(!gameOver) ball.update();
+		//player.update();
+		//ai.update();
 	}
 
+/***************************
+*  Draw Function - draw()  *
+****************************
+	draw() function helps you display the game onto the screen.
+	*/
+
 	function draw(){
-		console.log(ball.speedy);
+		
 		ctx.fillRect(0,0,WIDTH,HEIGHT);
 
 		ctx.save();
@@ -224,29 +229,9 @@ $(document).ready(function() {
 		}
 		WriteCanvasText()
 
-		//CHALLENGES!
-		if(score != prevScore){
-			player.height = player.height - (score*0.5);
-			ai.height = ai.height - (score*0.5);
-			aiChallenge = 0.1+(score*0.1);
-			ball.speed = ball.speed + 1;
-			prevScore++;
-			//console.log("ball speed is: "+ball.speed+" height is"+player.height);
-		}
-
 		ctx.restore();
 	}
 	
-
-	$(document).on("keyup", function() {
-		keyPressed = null;
-	});
-
-	//if function needs input, use e!!
-	$(document).on("keydown", function(e){
-		keyPressed = e.which;
-		if(keyPressed == UP_KEY || keyPressed == DOWN_KEY) startScore = true;
-	});
 	$("button").on("click", function() {
 		$(this).hide();
 		init();
