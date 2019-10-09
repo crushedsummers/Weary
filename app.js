@@ -232,10 +232,7 @@ $(document).ready(function() {
 		ctx.restore();
 	}
 	
-	$("button").on("click", function() {
-		$(this).hide();
-		init();
-	});
 
 	main();
+	init();
 });
