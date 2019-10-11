@@ -1,22 +1,86 @@
 *{
+	background-color: black;
+}
+img{
+	background-color: #FFFFFF00
+}
+#container{
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	background-color: yellow;
+  	align-items: center;
+  	justify-content: center;
 }
 
-canvas{
-	margin: auto;
-	border: 1px solid white;
+#inGame {
+  border: 3px solid black;
+  width: 2560px;
+  height: 1080px;
+  overflow: hidden;
+  position: relative;
+  background-color: white;
 }
 
-h1{
+.aliens {
+  position: absolute;
+}
+
+#cursor {
+	position: absolute;
+  width: auto;
+  height: 800px;
+}
+
+.set {
+	width: 100%;
+}
+
+#tree {
+	width: auto;
+	margin-top: -60px;
+	position: absolute;
+	right: 0;
+	display: block;
+}
+
+#scarf{
+	position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+#heart{
+	position: absolute;
+	top: 0;
+	display: block;
+}
+
+#system{
+	position: absolute;
+	top: 0;
+	margin-left: 50%;
+	display: block;
+}
+
+ html {
+  cursor: none;
+} 
+
+#retry {
+	background-color: white;
+	top: 0;
+	margin-left: 17%;
+	display: block;
 	font-family: 'Press Start 2P';
-	font-size: 50px;
-	margin-bottom: 10px;
-	margin-top: 0;
-	color: white;
+	font-size: 100px;
+	display: none;
+}
+
+#scoreCount {
+	background-color: white;
+	top: 0;
+	margin-left: 17%;
+	display: block;
+	font-family: 'Press Start 2P';
+	font-size: 100px;
 }
 
 @font-face {

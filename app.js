@@ -1,123 +1,231 @@
 $(document).ready(function() {
-/**************
-*  Variables  *
-***************
-	Here are the global variables we'll use in our game.*/
 
-	// Variable for overall set up
-	var screen, gameOver = false, win = false, score = 0, invaders_image; 
+/*************************
+*  Variables  - COMPLETE *
+**************************/
 
-	// Variables for frames to control screen's updates
-	var frames, levelFrame, motion;
+  // Systems Variables
+  const HEIGHT = $("#cursor").height();
+  const WIDTH = $("#cursor").width();
+  var interval;
+  const alienSprite = [
+      ["global/a1.png", "global/a2.png"], 
+      ["global/a1.png", "global/a2.png"],
+      ["global/b1.png", "global/b2.png"],
+      ];
+  
+  //Game Variables
+  var countdown = 5, aliensAlive = [], alienMovement = [], score=0, levelFrame = 3000, motion, frames = 0, gameOver = false, alienTag = 0;
+/**************************************
+*  Main Function - main()  - COMPLETE *
+***************************************
+  The main() function is the main entry point to run our game.*/
 
-	// Variables for the sprites
-	var alienSprite, helmetSprite, scarfSprite, heartSprite, textSprite, thinkSprite, systemSprite, treeSprite, gunSprite, baseSprite;
-
-	// Variables for storing the game objects
-	var aliens, helmet, scarf, heartCanvas, gunCanvas, dialouge, textCanvas, thinkCanvas, system, tree;
-
-	// Variable for game control
-	var alien_direction;
-
-/***************************
-*  Main Function - main()  *
-****************************
-	The main() function is the main entry point to run our game.*/
-
-	function main(){
-	    // Repeatedly loop and update the game & draw the result on the screen
-	    // let loop = function() {
-	      update();
-	      draw();
-
-	  //     if(!gameOver){
-	  //       window.requestAnimationFrame(loop, screen.canvas);
-	  //     } else{
-	  //       //call gameover function
-	  //       GameOver(screen, win);
-	  //     }
-	  //   }
-	  //   window.requestAnimationFrame(loop, screen.canvas);
-	}
+  function main(){
+    console.log("main function activated");
+      if(gameOver==false){
+       update();
+       draw();
+       //update frames
+      } 
+      else{
+        //call gameover function
+          clearInterval(interval);
+          console.log("gameOver function activated");
+          $(".set").attr("style", "display: none");
+          $(".gameset").attr("style", "display: none");
+          $("#scoreCount").attr("style", "display: none");
+          $("#retry").attr("style", "display: block");
+          setInterval(function(){countDown()}, 1000);
+      }
+  }
 
 /*************************************
 *  Initialization Function - init()  *
 **************************************
-	init() function helps us initialize and start off our game 
-	by preparing the sprites we need and put them in the right positions.
-	Once the sprite is loaded, we can the main() function to start the main loop!*/
-	
-	function init(){
-	    //name of Screen object is screen
-	    if (screen == null){
-	      screen = new Screen(1280,540);
+init() function helps us initialize and start off our game 
+by preparing the sprites we need and put them in the right positions.
+Once the sprite is loaded, we can the main() function to start the main loop!*/
+  function init(){
+    console.log("init function activated");
+    gameOver = false;
+    aliensAlive = [];
+    aliensMovement = [];
+    motion = 0;
+    for (let i = 0; i<$(".aliens").length; i++){
+      let check = $("#"+i);
+      check.remove();
+    }
+    alienTag = 0;
+    countdown = 5;
+    
+    //ALIENS
+      //sorting alien sprites
+      
 
-	    }
-	    gameOver = false;
-	    win = false;
-	    frames = 0; // Calculating screen's update using variables for frames
-	    motion = 0; //for alien, either 0 or 1
-	    levelFrame = 60;//frames required before switching to next level AKA when aliens come forward
+    //DIALOGUE (HIDDEN)
+      
 
-	 	// Assigning image source
-	    invaders_image = new Image();
-	    invaders_image.src = "global/fullspritesheet.png";
-
-	    $(invaders_image).on("load", function(){
-			alienSprite = [
-				[new Sprite(this, 0,0,431,307), new Sprite(this, 0,307,429,619)], //first alien, cropping img file
-				[new Sprite(this,432,0,736,304), new Sprite(this, 430,315,736,619)] //second alien
-			];
-			heartSprite = new Sprite(this, 741, 0, 890, 143);
-	  		textSprite = new Sprite(this, 737, 142, 914, 284);
-	  		thinkSprite = new Sprite(this, 737, 284, 945, 421);
-			systemSprite = new Sprite(this, 893, 13, 1005, 126);
-			treeSprite = new Sprite(this, 988, 0, 1358, 797);
-			gunSprite = new Sprite(this, 1358, 297, 2556, 802);
-			baseSprite = new Sprite(this, 0, 802, 1992, 990);
-			helmetSprite = new Sprite(this, 0, 990, 2556, 1230);
-			scarfSprite = new Sprite(this, 0, 1230, 2556, 1514);
-
-			helmet = {
-		      sprite: helmetSprite,
-		      x: 0,
-		      y: 0,
-		      width: helmetSprite.width,
-		      height: helmetSprite.height
-		    }
-		    scarf = {
-		      sprite: scarfSprite,
-		      x: 0,
-		      y: screen.height - scarfSprite.height,
-		      width: scarfSprite.width,
-		      height: scarfSprite.height
-	     	}
-     		main();
-		});
- 	}
+    //call main function to start game
+    interval = setInterval(function(){main()}, 1000);
+  }
 
 /*******************************
 *  Update Function - update()  *
 ********************************
-	update() function helps you update the positions and check for events (collisions, bullet shots).*/
+update() function helps you update the positions and check for events (collisions, bullet shots).*/
+  function update(){
+    console.log("update function activated");
+    // Create a generateAlien function to generate aliens
+      function generateAlien(){
+        console.log("generating new alien...");
+        let skin =alienSprite[Math.floor(Math.random() * alienSprite.length)][0];
+        let positionTop = Math.floor(Math.random() * (575-312));
+        let positionLeft = Math.floor(Math.random() * (2163-440));
+        let newAlien = $('<img id = '+alienTag+' class="aliens 5" style="top: '+(positionTop+209)+'px; left: '+(positionLeft)+'px" src='+ skin +'>;');
+        
+        //determine what type of alien
+        // newAlien.src = alienSprite[Math.floor(Math.random() * alienSprite.length)][motion];
+  
+        aliensAlive.push(newAlien);
+        //tracks alien's current frame, if >5, die, should be the same order as aliens entering
+        alienMovement.push(0);
+        $('#inGame').append(newAlien);
+        console.log("alien generated");
+      }
 
-	function update(){
-	}
+    // //update motion
+    //   if (motion == 0){
+    //     motion = 1;
+    //   }
+    //   else {
+    //     motion = 0;
+    //   }
 
+    //frame update
+    frames+=1000;
+    console.log(frames);
+    $("#scoreCount").html(score);
+    $("#scoreCount").attr("color", "white");
+    if(frames%levelFrame == 0){
+      generateAlien();
+      alienTag++;
+
+    //CHALLENGE: change alienMovement interval
+      switch (score) {
+        case 0: levelFrame = 8000; 
+        case 5: levelFrame = 6000; 
+        case 20: levelFrame = 4000; 
+        case 40: levelFrame = 2000; 
+        case 60: levelFrame = 1000; 
+      }
+
+    //If player clicks on the aliens, they die and give points
+      $(".aliens").click(function(){
+        console.log("clicked on an alien");
+          if ($(this).src == alienSprite[2][0]){
+            console.log("a lot of points received");
+            score += 8
+          }
+          else{
+            console.log("points received");
+            score += 3
+          }
+          $(this).remove();
+          
+      })
+
+    //Initiate Dialogue
+
+  }
+  // Check for game over
+  for (let i = 0; i<$(".aliens").length; i++){
+    
+    let check = $("#"+i);
+
+       if (check.hasClass("0")){
+            console.log(check);
+            gameOver = true;
+          } 
+          else if (check.hasClass("1")){
+            console.log(check);
+            check.removeClass("1");
+            check.addClass("0");
+          }
+          else if (check.hasClass("2")){
+            console.log(check);
+            check.removeClass("2");
+            check.addClass("1");
+          }
+          else if (check.hasClass("3")){
+            console.log(check);
+            check.removeClass("3");
+            check.addClass("2");
+          }
+          else if (check.hasClass("4")){
+            console.log(check);
+            check.removeClass("4");
+            check.addClass("3");
+          }
+         else if (check.hasClass("5")){
+            console.log(check);
+            check.removeClass("5");
+            check.addClass("4");
+          }
+      }}
 /***************************
 *  Draw Function - draw()  *
 ****************************
-	draw() function helps you display the game onto the screen.*/
+draw() function helps you display the game onto the screen.*/
+  function draw(){
+    console.log("draw function activated");
+    //aliens display
 
-	function draw(){
-		screen.clear();
-		screen.ctx.fillStyle = "white";
-		screen.ctx.fillRect(0,0,screen.width,screen.height);
-		screen.ctx.save();
+    //score display
 
-		screen.drawSprite(helmet.sprite, helmet.x, helmet.y);
-		screen.drawSprite(scarf.sprite, scarf.x, scarf.y);
-	}
+    //dialogue options display
+    
+  }
 
-init();
+/**********************************************
+*  Handling User's Inputs & Clicks  - COMPLETE*
+***********************************************
+This handles the user's inputs / clicks for controlling the game. */
+  
+  //Make the cursor picture follow your cursor 
+    $(document).mousemove(function(event){
+      $("#cursor").css({"top": event.pageY - HEIGHT/2, "left": event.pageX - WIDTH/2})
+    });
+  //cursor animation
+    $(document).on("mousedown", function(){
+      $(cursor).css("transform", "scale(1.5)")
+    })
+    $(document).on("mouseup", function(){
+      $(cursor).css("transform", "scale(1)")
+    })
+    
+    function countDown(){
+    if(countdown == 0){
+      goBack();
+    }
+    else{
+      countdown -= 1;
+      $("#retry").html(countdown);
+    }
+   }
+     // When retry button is click, restart the game.
+    function goBack() {
+      console.log("retry button pressed");
+      init();
+      $(".set").attr("style", "display: block");
+      $(".gameset").attr("style", "display: block");
+      $("#retry").attr("style", "display: none");
+      $("#scoreCount").attr("style", "display: block");
+    };
+
+/*************************************************
+*  Run the init function to kick start the game  *
+**************************************************
+This will run the init() function to load the resources, and eventually start the main loop.*/
+  init();
 });
